@@ -15,7 +15,16 @@ const diffText = (a: string, b: string) => {
   if (a.length <= b.length) {
     return _diffText(a, b);
   } else {
-    return _diffText(b, a);
+    return _diffText(b, a).map(([t, len, m, n]) => {
+      switch (t) {
+        case "D":
+          return ["I", len, n, m];
+        case "I":
+          return ["D", len, n, m];
+        default:
+          return ["M", len, n, m];
+      }
+    });
   }
 };
 
