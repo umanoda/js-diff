@@ -1,0 +1,31 @@
+{
+  "name": "js-diff",
+  "version": "1.0.0",
+  "description": "calculate the edit distance",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "rm -rf dist/*",
+    "build": "npm run clean && tsc -d",
+    "test": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/umanoda/js-diff.git"
+  },
+  "keywords": [
+    "O(ND)",
+    "edit distance"
+  ],
+  "author": "hhenpitu@gmail.com",
+  "license": "SEE IN LICENSE file",
+  "bugs": {
+    "url": "https://github.com/umanoda/js-diff/issues"
+  },
+  "homepage": "https://github.com/umanoda/js-diff#readme",
+  "dependencies": {
+    "typescript": "^4.7.4"
+  }
+}
