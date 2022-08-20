@@ -1,31 +1,38 @@
 {
-  "name": "js-diff",
-  "version": "1.0.0",
+  "author": "hhenpitu@gmail.com",
+  "bugs": {
+    "url": "https://github.com/umanoda/js-diff/issues"
+  },
   "description": "calculate the edit distance",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "eslint": "^8.22.0",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "typescript": "^4.7.4"
+  },
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
-  "scripts": {
-    "clean": "rm -rf dist/*",
-    "build": "npm run clean && tsc",
-    "test": "tsc --noEmit"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/umanoda/js-diff.git"
-  },
+  "homepage": "https://github.com/umanoda/js-diff#readme",
   "keywords": [
     "O(ND)",
     "edit distance"
   ],
-  "author": "hhenpitu@gmail.com",
   "license": "SEE IN LICENSE file",
-  "bugs": {
-    "url": "https://github.com/umanoda/js-diff/issues"
+  "main": "dist/index.js",
+  "name": "js-diff",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/umanoda/js-diff.git"
   },
-  "homepage": "https://github.com/umanoda/js-diff#readme",
-  "dependencies": {
-    "typescript": "^4.7.4"
-  }
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rm -rf dist/*",
+    "test": "tsc --noEmit"
+  },
+  "version": "1.0.0"
 }
