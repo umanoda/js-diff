@@ -19,7 +19,7 @@
   ],
   "homepage": "https://github.com/umanoda/js-diff#readme",
   "keywords": [
-    "O(ND)",
+    "O(NP)",
     "edit distance"
   ],
   "license": "SEE IN LICENSE file",
