@@ -1,1 +1,2 @@
-export default function (): void;
+import { diffText } from "./diffText";
+export default diffText;

@@ -3,9 +3,11 @@
     "target": "es6",
     "module": "umd",
     "declaration": true,
+    "moduleResolution": "node",
     "outDir": "./dist",
-    "strict": true
+    "strict": true,
+    "sourceMap": true,
   },
-  "include": ["src/**/*"]
+  "include": ["src/index.ts"]
 }
 

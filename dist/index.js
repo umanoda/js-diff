@@ -4,13 +4,12 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports"], factory);
+        define(["require", "exports", "./diffText"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    function default_1() {
-        console.log("Hallo World");
-    }
-    exports.default = default_1;
+    const diffText_1 = require("./diffText");
+    exports.default = diffText_1.diffText;
 });
+//# sourceMappingURL=index.js.map

@@ -26,5 +26,10 @@ module.exports = {
     "node/no-unsupported-features/es-syntax": "off",
     "one-var": "off",
    "padded-blocks": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {},
+    }
   }
 }
