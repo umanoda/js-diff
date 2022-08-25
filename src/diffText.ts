@@ -17,10 +17,7 @@ type ShortestEditScript = DiffDetail[];
 
 const diffText = (a: string, b: string) => {
   const d = new Diff(a, b);
-  const diff = d.distance();
-
-  console.log(diff);
-  console.log(d.regexp());
+  return d.regexp();
   /*
   if (a.length <= b.length) {
     return _diffText(a, b);
