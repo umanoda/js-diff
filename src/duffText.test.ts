@@ -2,8 +2,8 @@ import { diffText } from "./diffText";
 
 describe("general", () => {
   test("basic", () => {
-    const strA = "xbxxabdx";
-    const strB = "abxxxzddx";
+    const strA = "xbxxabdy";
+    const strB = "abxxxzddy";
 
     expect(diffText(strA, strB)).toEqual([
       ["I", 1, 0, null],

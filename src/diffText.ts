@@ -9,12 +9,18 @@ type DiffInsert = [Insert, number, number, null];
 type DiffMatch = [Match, number, number, number];
 
 type DiffDetail = DiffDelete | DiffInsert | DiffMatch;
+type MatchedString = {
+  y: number;
+  s: string;
+};
 type ShortestEditScript = DiffDetail[];
 
 const diffText = (a: string, b: string) => {
-  const diff = _diffText(a, b);
+  const d = new Diff(a, b);
+  const diff = d.distance();
 
   console.log(diff);
+  console.log(d.regexp());
   /*
   if (a.length <= b.length) {
     return _diffText(a, b);
@@ -33,12 +39,25 @@ const diffText = (a: string, b: string) => {
   */
 };
 
+const escapeRegexp = (s: string): string => {
+  return s.replace(/([/<>?.+*[\]()])/g, "\\$1");
+};
+
+const max = <T, S>(arg: T[], callback: (a: T) => S): T | null => {
+  if (arg.length === 0) {
+    return null;
+  }
+  return arg.reduce((a, b) => (callback(a) > callback(b) ? a : b));
+};
+
 class Diff {
-  a: string;
-  b: string;
-  m: number;
-  n: number;
-  flg: -1 | 1;
+  readonly a: string;
+  readonly b: string;
+  readonly m: number;
+  readonly n: number;
+  private _p: number | null;
+  private readonly flg: -1 | 1;
+  readonly matches: MatchedString[];
 
   constructor(a: string, b: string, flg: -1 | 1 = 1) {
     this.a = a;
@@ -46,6 +65,9 @@ class Diff {
     this.m = a.length;
     this.n = b.length;
     this.flg = flg;
+    this.matches = [];
+    this._p = null;
+
     if (this.m > this.n) {
       return new Diff(a, b, -1);
     }
@@ -55,89 +77,129 @@ class Diff {
     return this.n - this.m;
   }
 
-  snake(k: number, y: number) {
-    if (isNaN(y)) {
-      y = -1;
+  distance() {
+    return this.delta + 2 * this.p();
+  }
+
+  regexp() {
+    const lengthOfMatch = this.m - this.p();
+
+    let individuals: (RegExp | null)[] = new Array(
+      100 + this.matches.length * 10
+    );
+    individuals.fill(null);
+    individuals = individuals.map(() => {
+      // copy array and shuffle
+      const copiedMatches = Array.from(this.matches).sort(() =>
+        Math.floor(Math.random() - 0.5)
+      );
+
+      let t = 0;
+      const individual: MatchedString[] = [];
+      copiedMatches.forEach((c) => {
+        if (t >= lengthOfMatch) {
+          return;
+        }
+        individual.push(c);
+        t += c.s.length;
+      });
+
+      if (individual.reduce((a, b) => a + b.s.length, 0) > lengthOfMatch) {
+        return null;
+      }
+
+      const regexp = new RegExp(
+        `^(.*)${individual
+          .sort((a, b) => a.y - b.y)
+          .map((m) => `(${escapeRegexp(m.s)})`)
+          .join("(.*)")}(.*)$`
+      );
+      return regexp;
+    });
+    return (
+      max(individuals, (m) => {
+        if (!m) {
+          return -100;
+        }
+        const matchA = this.a.match(m);
+        const matchB = this.b.match(m);
+        if (!matchA || !matchB) {
+          return -100;
+        }
+        return Math.pow(matchA[0].length, 2) - matchA.length;
+      }) || /^$/
+    );
+  }
+
+  /**
+   * ref. An O(NP) Sequence Comparison Algorithm by described by Sun Wu, Udi Manber and Gene Myers (Wu et al.)
+   * https://www.sciencedirect.com/science/article/abs/pii/002001909090035V
+   *
+   * @param a string a.length <= b.length
+   * @param b string
+   * @returns
+   */
+  private p() {
+    if (this._p !== null) {
+      return this._p;
     }
+
+    const v = [];
+    for (let i = -(this.m + 1); i <= this.n + 1; i++) {
+      v[i] = -1;
+    }
+    const delta = this.delta;
+
+    if (this.m === 0 && this.n === 0) {
+      return 0;
+    } else if (this.m === 0 && this.n > 0) {
+      return this.delta;
+    }
+
+    // Search for P-value
+    for (let p = -1; p <= this.m; p++) {
+      // -p <= k < delta
+      for (let k = -p; k < delta; k++) {
+        v[k] = this.snake(k, Math.max(v[k - 1] + 1, v[k + 1]));
+      }
+
+      // delta < k <= delta + p
+      for (let k = delta + p; k > delta; k--) {
+        v[k] = this.snake(k, Math.max(v[k - 1] + 1, v[k + 1]));
+      }
+
+      // k = delta
+      {
+        v[delta] = this.snake(delta, Math.max(v[delta - 1] + 1, v[delta + 1]));
+      }
+
+      if (v[delta] === this.n) {
+        this._p = p;
+        return p;
+      }
+    }
+    throw Error("Never reach");
+  }
+
+  private snake(k: number, y: number) {
     let x = y - k;
-    while (x < this.m && y < this.n && this.a[x] === this.b[y]) {
+    const st = y;
+    let m = "";
+    while (this.a[x] === this.b[y]) {
+      if (this.a[x] !== undefined) {
+        m += this.a[x];
+      }
+      if (!(x < this.m && y < this.n)) {
+        break;
+      }
       x += 1;
       y += 1;
+    }
+    if (m !== "") {
+      this.matches.push({ y: st, s: m });
     }
     return y;
   }
 }
-
-/**
- * ref. An O(NP) Sequence Comparison Algorithm by described by Sun Wu, Udi Manber and Gene Myers (Wu et al.)
- * https://www.sciencedirect.com/science/article/abs/pii/002001909090035V
- *
- * @param a string a.length <= b.length
- * @param b string
- * @returns
- */
-const _diffText = (a: string, b: string) => {
-  const d = new Diff(a, b);
-
-  const v = new Array(d.m + d.n + 1);
-  const offset = d.m;
-  const delta = d.delta;
-
-  console.log(`a=${a}\nb=${b}`);
-
-  if (d.m === 0 && d.n === 0) {
-    return 0;
-  } else if (d.m === 0 && d.n > 0) {
-    return d.delta;
-  }
-
-  // Search for P-value
-  for (let p = 0; p <= d.m; p++) {
-    // -p <= k < delta
-    for (let k = -p; k < delta; k++) {
-      v[offset + k] = d.snake(
-        k,
-        Math.max(v[offset + k - 1] + 1, v[offset + k + 1])
-      );
-    }
-
-    // delta < k <= delta + p
-    for (let k = delta + p; k > delta; k--) {
-      v[offset + k] = d.snake(
-        k,
-        Math.max(v[offset + k - 1] + 1, v[offset + k + 1])
-      );
-    }
-
-    // k = delta
-    {
-      const k = delta;
-      v[offset + k] = d.snake(
-        k,
-        Math.max(v[offset + k - 1] + 1, v[offset + k + 1])
-      );
-    }
-
-    console.log(
-      `p=${p} :: m=${d.m} ,n=${d.n}, delta=${delta}\n${v}\nv[offset + delta]=${
-        v[offset + delta]
-      }`
-    );
-
-    if (v[offset + delta] === d.n) {
-      return delta + 2 * p;
-    }
-  }
-  throw Error("Never reach");
-
-  // const ses: ShortestEditScript = [
-  //   ["D", 4, null, 0],
-  //   ["M", 5, 0, 4],
-  //   ["D", 3, null, 9],
-  //   ["M", 4, 3, 12],
-  //   ["I", 5, 7, null],
-  // ];
-  // return ses;
-};
 
 export { diffText };

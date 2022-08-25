@@ -1,10 +1,2 @@
-declare type Delete = "D";
-declare type Insert = "I";
-declare type Match = "M";
-declare type DiffDelete = [Delete, number, null, number];
-declare type DiffInsert = [Insert, number, number, null];
-declare type DiffMatch = [Match, number, number, number];
-declare type DiffDetail = DiffDelete | DiffInsert | DiffMatch;
-declare type ShortestEditScript = DiffDetail[];
-declare const diffText: (a: string, b: string) => ShortestEditScript;
+declare const diffText: (a: string, b: string) => void;
 export { diffText };
