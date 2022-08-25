@@ -2,9 +2,9 @@ import { diffText } from "./diffText";
 
 describe("general", () => {
   test("basic", () => {
-    const strA = "abcdefgh";
-    const strB = "babcefghee";
-    diffText;
+    const strA = "xbxxabdx";
+    const strB = "abxxxzddx";
+
     expect(diffText(strA, strB)).toEqual([
       ["I", 1, 0, null],
       ["M", 3, 1, 0],
